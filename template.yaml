@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  workbench-step-functions
+
+  Retrieve jokes asynchronously the Serverless way.
+ 
+Globals:
+  Function:
+    Layers:
+      - !Ref RuntimeDependenciesLayer
+    Environment:
+      # # Environment variables used by every function
+      # Variables:
+      #  SAMPLE_TABLE: !Ref SampleTable
+    Runtime: nodejs14.x
+    MemorySize: 128
+    Timeout: 100
+
+Resources:
+  CreateJobFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Handler: dist/create-job/app.createJobHandler
+      Description: Create and start a new job and return the job id
+      Events:
+        CreateJob:
+          Type: Api
+          Properties:
+            Path: /jobs
+            Method: post
+
+  RuntimeDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Description: Runtime dependencies for Lambdas
+      ContentUri: ./
+      CompatibleRuntimes:
+        - nodejs14.x
+      RetentionPolicy: Retain
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  CreateJobApi:
+    Description: "API Gateway endpoint URL for Prod stage for Create Job function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/jobs"
+  CreateJobFunction:
+    Description: "Create Job Lambda Function ARN"
+    Value: !GetAtt CreateJobFunction.Arn
+  CreateJobIamRole:
+    Description: "Implicit IAM Role created for Create Job function"
+    Value: !GetAtt CreateJobFunctionRole.Arn
