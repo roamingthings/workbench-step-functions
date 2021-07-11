@@ -1,8 +1,11 @@
 .PHONY: build-RuntimeDependenciesLayer build-lambda-common
-.PHONY: build-CreateJobFunction
+.PHONY: build-CreateJobFunction build-RetrieveJokeFunction
 
 build-CreateJobFunction:
 	$(MAKE) HANDLER=src/create-job/app.ts build-lambda-common
+
+build-RetrieveJokeFunction:
+	$(MAKE) HANDLER=src/retrieve-joke/app.ts build-lambda-common
 
 build-lambda-common:
 	npm install

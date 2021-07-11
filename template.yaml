@@ -18,6 +18,20 @@ Globals:
     Timeout: 100
 
 Resources:
+  RetrieveJokeStateMachine:
+    Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+    Properties:
+      DefinitionUri: statemachine/retrieve_joke.asl.json
+      DefinitionSubstitutions:
+        RetrieveJokeFunctionArn: !GetAtt RetrieveJokeFunction.Arn
+        DDBPutJokesJob: !Sub arn:${AWS::Partition}:states:::dynamodb:putItem
+        DDBTable: !Ref JokesJobTable
+      Policies: # Find out more about SAM policy templates: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
+        - LambdaInvokePolicy:
+            FunctionName: !Ref RetrieveJokeFunction
+        - DynamoDBWritePolicy:
+            TableName: !Ref JokesJobTable
+
   CreateJobFunction:
     Type: AWS::Serverless::Function
     Metadata:
@@ -25,12 +39,26 @@ Resources:
     Properties:
       Handler: dist/create-job/app.createJobHandler
       Description: Create and start a new job and return the job id
+      Environment:
+        Variables:
+          RETRIEVE_JOKE_STATE_MACHINE_ARN: !Ref RetrieveJokeStateMachine
+      Policies:
+        - StepFunctionsExecutionPolicy:
+            StateMachineName: !GetAtt RetrieveJokeStateMachine.Name
       Events:
         CreateJob:
           Type: Api
           Properties:
             Path: /jobs
             Method: post
+
+  RetrieveJokeFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Handler: dist/retrieve-joke/app.retrieveJokeHandler
+      Description: Retrieve a Joke from the external JokeAPI
 
   RuntimeDependenciesLayer:
     Type: AWS::Serverless::LayerVersion
@@ -42,6 +70,16 @@ Resources:
       CompatibleRuntimes:
         - nodejs14.x
       RetentionPolicy: Retain
+
+  JokesJobTable:
+    Type: AWS::Serverless::SimpleTable # More info about SimpleTable Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-simpletable.html
+    Properties:
+      PrimaryKey:
+        Name: Id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -56,3 +94,9 @@ Outputs:
   CreateJobIamRole:
     Description: "Implicit IAM Role created for Create Job function"
     Value: !GetAtt CreateJobFunctionRole.Arn
+  RetrieveJokeStateMachineArn:
+    Description: "Retrieve Joke state machine ARN"
+    Value: !Ref RetrieveJokeStateMachine
+  RetrieveJokeStateMachineRole:
+    Description: "IAM Role created for Retrieve Joke state machine based on the specified SAM Policy Templates"
+    Value: !GetAtt RetrieveJokeStateMachine.Arn
