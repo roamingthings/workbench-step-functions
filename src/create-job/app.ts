@@ -37,10 +37,11 @@ export const createJobHandler = async (
 
   const response = {
     statusCode: 201,
-    body: JSON.stringify({
-      ref: referenceNumber,
-    }),
-  };
+    headers: {
+      'Location': `https://${event.requestContext.domainName}${event.requestContext.path}/${referenceNumber}`
+    },
+    body: JSON.stringify({ref: referenceNumber}),
+  } as APIGatewayProxyResult;
 
   console.info(
     `response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`
