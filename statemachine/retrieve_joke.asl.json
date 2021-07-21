@@ -19,9 +19,9 @@
             "ErrorEquals": [
               "States.TaskFailed"
             ],
-            "IntervalSeconds": 20,
-            "MaxAttempts": 5,
-            "BackoffRate": 10
+            "IntervalSeconds": 5,
+            "MaxAttempts": 3,
+            "BackoffRate": 2
           }
         ],
         "ResultPath": null,
@@ -65,9 +65,9 @@
             "ErrorEquals": [
               "States.TaskFailed"
             ],
-            "IntervalSeconds": 20,
-            "MaxAttempts": 5,
-            "BackoffRate": 10
+            "IntervalSeconds": 5,
+            "MaxAttempts": 3,
+            "BackoffRate": 2
           }
         ],
         "End": true
