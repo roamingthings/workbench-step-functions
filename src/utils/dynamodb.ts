@@ -6,7 +6,7 @@ export default class CustomDynamoClient {
     table: string;
     docClient: DynamoDB.DocumentClient;
 
-    constructor(table = process.env.SAMPLE_TABLE) {
+    constructor(table = process.env.JOB_TABLE) {
         this.docClient = new DynamoDB.DocumentClient();
         this.table = table;
     }
@@ -19,7 +19,7 @@ export default class CustomDynamoClient {
     async read(id: any) {
         var params = {
             TableName : this.table,
-            Key: { id: id },
+            Key: { Id: id },
         };
         const data = await this.docClient.get(params).promise();
         return data.Item;

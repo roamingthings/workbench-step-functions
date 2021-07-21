@@ -38,7 +38,6 @@ export const createJobHandler = async (
   const response = {
     statusCode: 201,
     body: JSON.stringify({
-      message: "hello world",
       ref: referenceNumber,
     }),
   };

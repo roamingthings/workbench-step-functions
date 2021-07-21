@@ -1,50 +1,77 @@
 {
     "Comment": "A state machine that retrieves jokes and stores them in a job table.",
-    "StartAt": "Retrieve Joke",
+    "StartAt": "Init Job",
     "States": {
-        "Retrieve Joke": {
-            "Type": "Task",
-            "Resource": "${RetrieveJokeFunctionArn}",
-            "Retry": [
-                {
-                    "ErrorEquals": [
-                        "States.TaskFailed"
-                    ],
-                    "IntervalSeconds": 15,
-                    "MaxAttempts": 5,
-                    "BackoffRate": 1.5
-                }
-            ],
-            "Next": "Update Job Details"
-        },
-        "Update Job Details": {
-            "Type": "Task",
-            "Resource": "${DDBPutJokesJob}",
-            "Parameters": {
-                "TableName": "${DDBTable}",
-                "Item": {
-                    "Id": {
-                        "S.$": "$.id"
-                    },
-                    "Text": {
-                        "S.$": "$.text"
-                    },
-                    "Timestamp": {
-                        "S.$": "$.timestamp"
-                    }
-                }
+      "Init Job": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::dynamodb:putItem",
+        "Parameters": {
+          "TableName": "workbench-step-functions-JokesJobTable-3233L1X29PG3",
+          "Item": {
+            "Id": {
+              "S.$": "$.ref"
             },
-            "Retry": [
-                {
-                    "ErrorEquals": [
-                        "States.TaskFailed"
-                    ],
-                    "IntervalSeconds": 20,
-                    "MaxAttempts": 5,
-                    "BackoffRate": 10
-                }
+            "Status": "CREATED"
+          }
+        },
+        "Retry": [
+          {
+            "ErrorEquals": [
+              "States.TaskFailed"
             ],
-            "End": true
-        }
+            "IntervalSeconds": 20,
+            "MaxAttempts": 5,
+            "BackoffRate": 10
+          }
+        ],
+        "ResultPath": null,
+        "Next": "Retrieve Joke"
+      },
+      "Retrieve Joke": {
+        "Type": "Task",
+        "Resource": "arn:aws:lambda:eu-central-1:985043000596:function:workbench-step-functions-RetrieveJokeFunction-71psfHIVOdcl",
+        "Retry": [
+          {
+            "ErrorEquals": [
+              "States.TaskFailed"
+            ],
+            "IntervalSeconds": 15,
+            "MaxAttempts": 5,
+            "BackoffRate": 1.5
+          }
+        ],
+        "Next": "Update Job Details"
+      },
+      "Update Job Details": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::dynamodb:putItem",
+        "Parameters": {
+          "TableName": "workbench-step-functions-JokesJobTable-3233L1X29PG3",
+          "Item": {
+            "Id": {
+              "S.$": "$.id"
+            },
+            "Text": {
+              "S.$": "$.text"
+            },
+            "Timestamp": {
+              "S.$": "$.timestamp"
+            },
+            "Status": "FINISHED"
+          }
+        },
+        "Retry": [
+          {
+            "ErrorEquals": [
+              "States.TaskFailed"
+            ],
+            "IntervalSeconds": 20,
+            "MaxAttempts": 5,
+            "BackoffRate": 10
+          }
+        ],
+        "End": true
+      }
     }
-}
+  }
+  

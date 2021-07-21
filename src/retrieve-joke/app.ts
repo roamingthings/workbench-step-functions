@@ -1,4 +1,5 @@
 import 'source-map-support/register';
+import axios, { AxiosResponse } from 'axios';
 
 interface RetrieveJokeResult {
     id: string;
@@ -14,11 +15,15 @@ export const retrieveJokeHandler = async (
     event: RetrieveJokeRequest,
 ): Promise<RetrieveJokeResult> => {
     var date = new Date();
-    var text = 'Dummy joke'
+
+    const res = await axios.get('https://v2.jokeapi.dev/joke/Programming?type=single');
+
+    const joke = res.data.joke;
+    console.log(joke);
 
     let result = {
         'id': event.ref,
-        text,
+        'text': joke,
         'timestamp': date.toISOString(),
     }
 

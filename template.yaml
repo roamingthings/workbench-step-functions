@@ -60,6 +60,26 @@ Resources:
       Handler: dist/retrieve-joke/app.retrieveJokeHandler
       Description: Retrieve a Joke from the external JokeAPI
 
+  JobStatusFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Handler: dist/job-status/app.jobStatusHandler
+      Description: Retrieve the current status of a job
+      Environment:
+        Variables:
+          JOB_TABLE: !Ref JokesJobTable
+      Policies: # Find out more about SAM policy templates: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
+        - DynamoDBReadPolicy:
+            TableName: !Ref JokesJobTable
+      Events:
+        JobStatus:
+          Type: Api
+          Properties:
+            Path: /jobs/{proxy+}
+            Method: get
+
   RuntimeDependenciesLayer:
     Type: AWS::Serverless::LayerVersion
     Metadata:
