@@ -26,6 +26,8 @@ To build and deploy your application for the first time, run the following in yo
 ```bash
 sam build
 sam deploy --guided
+- or -
+sam deploy --no-confirm-changeset
 ```
 
 The first command will build the source of your application. The second command will package and deploy your application to AWS, with a series of prompts:
@@ -37,6 +39,15 @@ The first command will build the source of your application. The second command 
 * **Save arguments to samconfig.toml**: If set to yes, your choices will be saved to a configuration file inside the project, so that in the future you can just re-run `sam deploy` without parameters to deploy changes to your application.
 
 You can find your API Gateway Endpoint URL in the output values displayed after deployment.
+
+## Use the application
+
+Create a new job by making a POST request to the URL shown after `sam deploy` under `CreateJobAPI`:
+`curl -X POST  https://<prefixes>.amazonaws.com/Prod/jobs`
+
+This call will return the reference number of the job. Youj can then query the job status:
+
+`curl https://<prefix>.amazonaws.com/Prod/jobs/<job reference>`
 
 ## Use the SAM CLI to build and test locally
 
