@@ -4,9 +4,9 @@
     "States": {
       "Init Job": {
         "Type": "Task",
-        "Resource": "arn:aws:states:::dynamodb:putItem",
+        "Resource": "${DDBPutJokesJob}",
         "Parameters": {
-          "TableName": "workbench-step-functions-JokesJobTable-3233L1X29PG3",
+          "TableName": "${DDBTable}",
           "Item": {
             "Id": {
               "S.$": "$.ref"
@@ -29,7 +29,7 @@
       },
       "Retrieve Joke": {
         "Type": "Task",
-        "Resource": "arn:aws:lambda:eu-central-1:985043000596:function:workbench-step-functions-RetrieveJokeFunction-71psfHIVOdcl",
+        "Resource": "${RetrieveJokeFunctionArn}",
         "Retry": [
           {
             "ErrorEquals": [
@@ -46,7 +46,7 @@
         "Type": "Task",
         "Resource": "arn:aws:states:::dynamodb:putItem",
         "Parameters": {
-          "TableName": "workbench-step-functions-JokesJobTable-3233L1X29PG3",
+          "TableName": "${DDBTable}",
           "Item": {
             "Id": {
               "S.$": "$.id"
