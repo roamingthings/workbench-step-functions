@@ -17,7 +17,7 @@ export const jobStatusHandler = async (
   console.info("pathParameters:", event.pathParameters);
 
   const dynamoClient = new CustomDynamoClient();
-  const jobId = event.pathParameters.proxy;
+  const jobId = event.pathParameters.jobId;
   if (jobId == null) {
     const response = {
       statusCode: 404,

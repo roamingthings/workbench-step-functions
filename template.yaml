@@ -77,7 +77,7 @@ Resources:
         JobStatus:
           Type: Api
           Properties:
-            Path: /jobs/{proxy+}
+            Path: /jobs/{jobId+}
             Method: get
 
   RuntimeDependenciesLayer:
